@@ -1,0 +1,1 @@
+['can', 'glass', 'nothing', 'paper', 'pet', 'plastic']

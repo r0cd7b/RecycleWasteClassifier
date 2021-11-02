@@ -30,7 +30,7 @@ print("Pi Camera setting is completed.")
 
 # Set class names and load cnn model
 print("Start CNN model loading.")
-class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic']
+class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic', 'shaken']
 model_h5 = 'models/ResNet50V2.h5'  # 불러올 모델 파일의 이름을 정한다.
 model = None
 try:
@@ -59,15 +59,23 @@ while model:
     prediction = np.argmax(predictions[0])
     print(f"{100 * np.max(predictions[0]):2.0f}% {class_names[prediction]}")
 
-    if prediction == 2:  # Skip for nothing class.
+    if prediction in [2, 6]:  # Skip for nothing class.
         continue
 
     # Save predicted image.
     image.save(f"garbage_images/{class_names[prediction]}_{int(time.time())}.jpg")
 
     # Operate the motor.
-    if prediction > 2:
-        prediction -= 1
+    if prediction in [0]:  # Execute if can
+        prediction = 0
+    elif prediction in [1]:  # Execute if glass
+        prediction = 1
+    elif prediction in [3]:  # Execute if paper
+        prediction = 2
+    elif prediction in [4]:  # Execute if pet
+        prediction = 3
+    elif prediction in [5]:  # Execute if plastic
+        prediction = 4
     current_angle = move_motor(current_angle, prediction, motor_pins1, motor_pins2)
 
 # Pi Camera and GPIO clear

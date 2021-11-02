@@ -89,7 +89,7 @@ class MainScreen:
 
         # Set class names and load CNN model.
         print("Start CNN model loading.")
-        self.class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic']
+        self.class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic', 'shaken']
         self.model_h5 = 'models/ResNet50V2.h5'  # Set name of CNN model file.
         self.model = None
         try:
@@ -145,15 +145,23 @@ class MainScreen:
                 prediction = np.argmax(predictions[0])
                 self.label_text.set(f"{100 * np.max(predictions[0]):2.0f}% {self.class_names[prediction]}")
 
-                if prediction == 2:  # Skip for nothing class.
+                if prediction in [2, 6]:  # Skip for nothing class.
                     continue
 
                 # Save predicted image.
                 # image.save(f"garbage_images/{self.class_names[prediction]}_{int(time.time())}.jpg")
 
                 # Operate the motor.
-                if prediction > 2:
-                    prediction -= 1
+                if prediction in [0]:  # Execute if can
+                    prediction = 0
+                elif prediction in [1]:  # Execute if glass
+                    prediction = 1
+                elif prediction in [3]:  # Execute if paper
+                    prediction = 2
+                elif prediction in [4]:  # Execute if pet
+                    prediction = 3
+                elif prediction in [5]:  # Execute if plastic
+                    prediction = 4
                 self.current_angle = move_motor(self.current_angle, prediction, self.motor_pins1, self.motor_pins2)
 
     def selectRadio(self):  # 라디오 버튼 이벤트

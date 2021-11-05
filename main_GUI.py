@@ -145,22 +145,22 @@ class MainScreen:
                 prediction = np.argmax(predictions[0])
                 self.label_text.set(f"{100 * np.max(predictions[0]):2.0f}% {self.class_names[prediction]}")
 
-                if prediction in [2, 6]:  # Skip for nothing class.
+                if prediction == 2 or prediction == 6:  # Skip for nothing or shaken class.
                     continue
 
                 # Save predicted image.
                 # image.save(f"garbage_images/{self.class_names[prediction]}_{int(time.time())}.jpg")
 
                 # Operate the motor.
-                if prediction in [0]:  # Execute if can
+                if prediction == 0:  # Execute if can
                     prediction = 0
-                elif prediction in [1]:  # Execute if glass
+                elif prediction == 1:  # Execute if glass
                     prediction = 1
-                elif prediction in [3]:  # Execute if paper
+                elif prediction == 3:  # Execute if paper
                     prediction = 2
-                elif prediction in [4]:  # Execute if pet
+                elif prediction == 4:  # Execute if pet
                     prediction = 3
-                elif prediction in [5]:  # Execute if plastic
+                elif prediction == 5:  # Execute if plastic
                     prediction = 4
                 self.current_angle = move_motor(self.current_angle, prediction, self.motor_pins1, self.motor_pins2)
 

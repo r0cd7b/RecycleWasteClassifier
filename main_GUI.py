@@ -149,7 +149,7 @@ class MainScreen:
                     continue
 
                 # Save predicted image.
-                # image.save(f"garbage_images/{self.class_names[prediction]}_{int(time.time())}.jpg")
+                image.save(f"garbage_images/{self.class_names[prediction]}_{int(time.time())}.jpg")
 
                 # Operate the motor.
                 if prediction == 0:  # Execute if can

@@ -7,7 +7,7 @@ data_dir = pathlib.Path("garbage_images")  # 이미지 데이터 파일의 경�
 
 # 무작위 시드를 고정하고 배치 크기와 이미지 크기를 지정한다.
 batch_size = 32
-img_size = 299
+img_size = 224
 seed = 25
 
 # 훈련 데이터와 검증 데이터를 나눈다.
@@ -65,8 +65,8 @@ train_cache = train_ds.cache().prefetch(buffer_size=auto_tune)
 val_cache = val_ds.cache().prefetch(buffer_size=auto_tune)
 
 model = load_model(  # 모델이 있다면 불러오고 없다면 학습 및 저장한다.
-    "ResNet50V2",
-    applications.ResNet50V2(include_top=False, input_shape=data_shape, pooling="avg"),  # 전이 학습할 모델을 선정한다.
+    "MobileNetV2",
+    applications.MobileNetV2(include_top=False, input_shape=data_shape, pooling="avg"),  # 전이 학습할 모델을 선정한다.
     train_cache,
     val_cache,
     data_shape,

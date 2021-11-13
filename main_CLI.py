@@ -30,8 +30,8 @@ print("Pi Camera setting is completed.")
 
 # Set class names and load cnn model
 print("Start CNN model loading.")
-class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic', 'shaken']
-model_h5 = 'models/ResNet50V2.h5'  # 불러올 모델 파일의 이름을 정한다.
+class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic']
+model_h5 = 'models/MobileNetV2.h5'  # 불러올 모델 파일의 이름을 정한다.
 model = None
 try:
     model = models.load_model(model_h5)  # 모델을 불러온다.
@@ -59,23 +59,15 @@ while model:
     prediction = np.argmax(predictions[0])
     print(f"{100 * np.max(predictions[0]):2.0f}% {class_names[prediction]}")
 
-    if prediction == 2 or prediction == 6:  # Skip for nothing or shaken class.
+    if prediction == 2:  # Skip for nothing class.
         continue
 
     # Save predicted image.
-    image.save(f"garbage_images/{class_names[prediction]}_{int(time.time())}.jpg")
+    image.save(f"garbage_images/{int(time.time())}_{class_names[prediction]}.jpg")
 
     # Operate the motor.
-    if prediction == 0:  # Execute if can
-        prediction = 0
-    elif prediction == 1:  # Execute if glass
-        prediction = 1
-    elif prediction == 3:  # Execute if paper
-        prediction = 2
-    elif prediction == 4:  # Execute if pet
-        prediction = 3
-    elif prediction == 5:  # Execute if plastic
-        prediction = 4
+    if prediction > 2:  # Except for the nothing class, the order number is determined.
+        prediction -= 1
     current_angle = move_motor(current_angle, prediction, motor_pins1, motor_pins2)
 
 # Pi Camera and GPIO clear

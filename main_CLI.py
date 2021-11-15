@@ -22,7 +22,7 @@ print("GPIO setting is completed.")
 
 # Set camera
 print("Start Pi Camera setting.")
-image_size = 299
+image_size = 224
 capture_size = image_size * 3
 camera = picamera.PiCamera(resolution=(capture_size, capture_size), framerate=90)
 camera.start_preview(fullscreen=False, window=(10, 40, 300, 300))

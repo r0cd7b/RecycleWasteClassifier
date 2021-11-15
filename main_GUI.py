@@ -81,7 +81,7 @@ class MainScreen:
 
         # Set PiCamera.
         print("Start Pi Camera setting.")
-        self.image_size = 299
+        self.image_size = 224
         self.camera_size = self.image_size * 3
         self.camera = picamera.PiCamera(resolution=(self.camera_size, self.camera_size), framerate=90)
         self.camera.start_preview(fullscreen=False, window=(60, 140, 300, 300))

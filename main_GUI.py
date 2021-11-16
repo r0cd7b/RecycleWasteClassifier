@@ -90,7 +90,7 @@ class MainScreen:
         # Set class names and load CNN model.
         print("Start CNN model loading.")
         self.class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic']
-        self.model_h5 = 'models/MobileNetV2.h5'  # Set name of CNN model file.
+        self.model_h5 = 'models/MobileNet(alpha=1.0).h5'  # Set name of CNN model file.
         self.model = None
         try:
             self.model = models.load_model(self.model_h5)  # Load CNN model.

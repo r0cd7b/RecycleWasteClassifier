@@ -31,7 +31,7 @@ print("Pi Camera setting is completed.")
 # Set class names and load cnn model
 print("Start CNN model loading.")
 class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic']
-model_h5 = 'models/MobileNetV2.h5'  # 불러올 모델 파일의 이름을 정한다.
+model_h5 = 'models/MobileNet(alpha=1.0).h5'  # 불러올 모델 파일의 이름을 정한다.
 model = None
 try:
     model = models.load_model(model_h5)  # 모델을 불러온다.

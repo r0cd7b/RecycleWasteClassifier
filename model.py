@@ -3,12 +3,10 @@ import numpy as np
 import tensorflow as tf
 
 
-def load_model(model_name, base_model, preprocess_input, train_dataset, validation_dataset, num_classes, img_shape,
+def load_model(model_dir, preprocess_input, base_model, train_dataset, validation_dataset, num_classes, img_shape,
                data_augmentation):  # 모델을 불러오거나 학습한다.
-    model_path = f"models/{model_name}.h5"  # 모델 파일의 경로와 이름을 정한다.
-
     try:
-        model = tf.keras.models.load_model(model_path)  # 모델을 불러온다.
+        model = tf.keras.models.load_model(model_dir)  # 모델을 불러온다.
         model.summary()  # 모델 구조를 출력한다.
 
         # 검증 데이터 셋으로 모델을 평가한다.
@@ -113,6 +111,7 @@ def predict_test(validation_dataset, model, class_names):  # 모델로 예측을
     for i in range(9):
         plt.subplot(3, 3, i + 1)
         plt.imshow(image_batch[i].astype("uint8"))
-        plt.title(f"{class_names[np.argmax(predictions[i])]} {100 * np.max(predictions[i]):.2f}% ({class_names[label_batch[i]]})")
+        plt.title(
+            f"{class_names[np.argmax(predictions[i])]} {100 * np.max(predictions[i]):.2f}% ({class_names[label_batch[i]]})")
         plt.axis("off")
     plt.show()

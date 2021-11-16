@@ -9,7 +9,12 @@ data_dir = pathlib.Path("garbage_images")  # 이미지 데이터 파일의 경�
 
 # 무작위 시드를 고정하고 배치 크기와 이미지 크기를 지정한다.
 BATCH_SIZE = 32
+
 IMG_SIZE = (224, 224)
+model_dir = "models/MobileNet(alpha=0.50).h5"
+IMG_SHAPE = IMG_SIZE + (3,)
+preprocess_input = tf.keras.applications.mobilenet_v2.preprocess_input
+base_model = tf.keras.applications.MobileNet(input_shape=IMG_SHAPE, include_top=False, weights='imagenet', alpha=0.50)
 
 seed = 123
 train_dataset = image_dataset_from_directory(  # 훈련 데이터를 나눈다.
@@ -58,13 +63,11 @@ data_augmentation = tf.keras.Sequential([  # 데이터 증강을 위해 회전 �
 #         plt.axis('off')
 # plt.show()
 
-# 해당 모델이 있다면 불러오고 없다면 학습 및 저장한다.
-IMG_SHAPE = IMG_SIZE + (3,)
 num_classes = len(class_names)
-model = load_model(
-    "MobileNetV2(alpha=1.0)",
-    tf.keras.applications.MobileNetV2(input_shape=IMG_SHAPE, include_top=False, weights='imagenet', alpha=1.0),
-    tf.keras.applications.mobilenet_v2.preprocess_input,
+model = load_model(  # 해당 모델이 있다면 불러오고 없다면 학습 및 저장한다.
+    model_dir,
+    preprocess_input,
+    base_model,
     train_dataset,
     validation_dataset,
     num_classes,
@@ -72,4 +75,4 @@ model = load_model(
     data_augmentation
 )
 
-predict_test(validation_dataset, model, class_names)  # 테스트 데이터의 일부를 예측하고 출력한다.
+# predict_test(validation_dataset, model, class_names)  # 테스트 데이터의 일부를 예측하고 출력한다.

@@ -69,7 +69,7 @@ def load_model(model_dir, preprocess_input, base_model, train_dataset, validatio
             validation_data=validation_dataset,
             callbacks=[early_stop]
         )
-        model.save(model_path)  # 학습한 모델을 저장한다.
+        model.save(model_dir)  # 학습한 모델을 저장한다.
 
         # 학습 과정을 출력한다.
         acc = history.history['accuracy']

@@ -78,7 +78,7 @@ def load_model(model_dir, preprocess_input, base_model, train_dataset, validatio
         loss = history.history['loss']
         val_loss = history.history['val_loss']
 
-        plt.figure(figsize=(8, 8))
+        plt.figure(figsize=(9, 9))
 
         plt.subplot(2, 1, 1)
         plt.plot(acc, label='Training Accuracy')

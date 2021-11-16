@@ -11,12 +11,12 @@ data_dir = pathlib.Path("garbage_images")  # 이미지 데이터 파일의 경�
 BATCH_SIZE = 32
 
 IMG_SIZE = (224, 224)
-model_dir = "models/MobileNetV2(alpha=0.35).h5"
 IMG_SHAPE = IMG_SIZE + (3,)
-preprocess_input = tf.keras.applications.mobilenet_v2.preprocess_input
-base_model = tf.keras.applications.MobileNet(input_shape=IMG_SHAPE, include_top=False, weights='imagenet', alpha=0.50)
-
 seed = 123
+model_dir = "models/MobileNetV2(alpha=0.50).h5"
+preprocess_input = tf.keras.applications.mobilenet_v2.preprocess_input
+base_model = tf.keras.applications.MobileNetV2(input_shape=IMG_SHAPE, include_top=False, weights='imagenet', alpha=0.50)
+
 train_dataset = image_dataset_from_directory(  # 훈련 데이터를 나눈다.
     data_dir,
     validation_split=0.2,

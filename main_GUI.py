@@ -1,14 +1,15 @@
-import RPi.GPIO as GPIO
-import picamera
-from tensorflow.keras import models
-from io import BytesIO
-from PIL import Image
-import numpy as np
 from rotate import *
+
 import tkinter as tk
 from tkinter import font
+import RPi.GPIO as GPIO
+import picamera
 import threading
+from io import BytesIO
+from PIL import Image
 import time
+import numpy as np
+import tensorflow as tf
 
 
 class MainScreen:
@@ -90,10 +91,10 @@ class MainScreen:
         # Set class names and load CNN model.
         print("Start CNN model loading.")
         self.class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic']
-        self.model_h5 = 'models/MobileNet(alpha=1.0).h5'  # Set name of CNN model file.
+        self.model_h5 = 'models/MobileNetV2(alpha=1.0).h5'  # Set name of CNN model file.
         self.model = None
         try:
-            self.model = models.load_model(self.model_h5)  # Load CNN model.
+            self.model = tf.keras.models.load_model(self.model_h5)  # Load CNN model.
             print("CNN model loading is completed.")
         except Exception as e:
             print(e)
@@ -135,21 +136,22 @@ class MainScreen:
                 stream = BytesIO()
                 self.camera.capture(stream, format='jpeg')
                 stream.seek(0)
-                image = Image.open(stream)
-                image = image.crop((self.image_size, self.image_size, self.image_size * 2, self.image_size * 2))
+                img = Image.open(stream)
+                img = img.crop((self.image_size, self.image_size, self.image_size * 2, self.image_size * 2))
 
                 # Predict image.
-                image_array = np.array(image)
-                image_array = (np.expand_dims(image_array, 0))
-                predictions = self.model.predict(image_array)
-                prediction = np.argmax(predictions[0])
-                self.label_text.set(f"{100 * np.max(predictions[0]):2.0f}% {self.class_names[prediction]}")
+                img_array = tf.keras.preprocessing.image.img_to_array(img)
+                img_array = tf.expand_dims(img_array, 0)
+                predictions = self.model.predict(img_array)
+                score = tf.nn.softmax(predictions[0])
+                prediction = np.argmax(score)
+                self.label_text.set(f"{self.class_names[prediction]} {100 * np.max(score):.2f}%")
 
                 if prediction == 2:  # Skip for nothing class.
                     continue
 
                 # Save predicted image.
-                image.save(f"garbage_images/{int(time.time())}_{self.class_names[prediction]}.jpg")
+                img.save(f"garbage_images/{int(time.time())}_{self.class_names[prediction]}.jpg")
 
                 # Operate the motor.
                 if prediction > 2:  # Except for the nothing class, the order number is determined.

@@ -1,88 +1,75 @@
-﻿import pathlib
-from tensorflow.keras import preprocessing, applications
-from tensorflow import data
-from model import *
+﻿from model import *
+
+import pathlib
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.preprocessing import image_dataset_from_directory
 
 data_dir = pathlib.Path("garbage_images")  # 이미지 데이터 파일의 경로를 지정한다.
 
 # 무작위 시드를 고정하고 배치 크기와 이미지 크기를 지정한다.
-batch_size = 32
-img_size = 224
-seed = 26
+BATCH_SIZE = 32
+IMG_SIZE = (224, 224)
 
-# 훈련 데이터와 검증 데이터를 나눈다.
-train_ds = preprocessing.image_dataset_from_directory(
+seed = 123
+train_dataset = image_dataset_from_directory(  # 훈련 데이터를 나눈다.
     data_dir,
-    batch_size=batch_size,
-    image_size=(img_size, img_size),
+    validation_split=0.2,
+    subset="training",
     seed=seed,
-    validation_split=0.1,
-    subset="training"
+    image_size=IMG_SIZE,
+    batch_size=BATCH_SIZE
 )
-val_ds = preprocessing.image_dataset_from_directory(
+validation_dataset = image_dataset_from_directory(  # 검증 데이터를 나눈다.
     data_dir,
-    batch_size=batch_size,
-    image_size=(img_size, img_size),
+    validation_split=0.2,
+    subset="validation",
     seed=seed,
-    validation_split=0.1,
-    subset="validation"
+    image_size=IMG_SIZE,
+    batch_size=BATCH_SIZE
 )
 
-# 클래스 이름을 확인한다.
-class_names = train_ds.class_names
-print(f"class_names = {class_names}")
-
-# 이미지 9장을 확인한다.
-# plt.figure(figsize=(5, 5))
-# for images, labels in train_ds.take(1):
+class_names = train_dataset.class_names
+# plt.figure(figsize=(9, 9))
+# for images, labels in train_dataset.take(1):  # 훈련용 데이터셋에서 처음 9 개의 이미지 및 레이블을 보여준다.
 #     for i in range(9):
-#         plt.subplot(3, 3, i + 1)
+#         ax = plt.subplot(3, 3, i + 1)
 #         plt.imshow(images[i].numpy().astype("uint8"))
 #         plt.title(class_names[labels[i]])
 #         plt.axis("off")
 # plt.show()
 
-# 데이터를 무작위로 변환하여 증강하고 확인한다.
-# data_augmentation = keras.Sequential([
-#     experimental.preprocessing.RandomFlip(),
-#     experimental.preprocessing.RandomRotation(0.2)
-# ])
-# plt.figure(figsize=(5, 5))
-# for images, labels in train_ds.take(1):
+# 버퍼링된 프리페치를 사용하여 I/O 차단 없이 디스크에서 이미지를 로드한다.
+AUTOTUNE = tf.data.AUTOTUNE
+train_dataset = train_dataset.prefetch(buffer_size=AUTOTUNE)
+validation_dataset = validation_dataset.prefetch(buffer_size=AUTOTUNE)
+
+data_augmentation = tf.keras.Sequential([  # 데이터 증강을 위해 회전 및 수평 뒤집기로 훈련 이미지에 다양성을 인위적으로 도입한다.
+    tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
+    tf.keras.layers.experimental.preprocessing.RandomRotation(0.2),
+])
+# for image, _ in train_dataset.take(1):  # 증강된 데이터를 확인한다.
+#     plt.figure(figsize=(9, 9))
+#     first_image = image[0]
 #     for i in range(9):
-#         augmented_images = data_augmentation(images)
-#         plt.subplot(3, 3, i + 1)
-#         plt.imshow(augmented_images[0].numpy().astype("uint8"))
-#         plt.title(class_names[labels[0]])
-#         plt.axis("off")
+#         ax = plt.subplot(3, 3, i + 1)
+#         augmented_image = data_augmentation(tf.expand_dims(first_image, 0))
+#         plt.imshow(augmented_image[0] / 255)
+#         plt.axis('off')
 # plt.show()
 
-data_shape = (img_size, img_size, 3)  # 입력 데이터의 shape를 저장한다.
-
-# on disk cache를 활용하여 성능을 향상시킨다.
-auto_tune = data.experimental.AUTOTUNE
-train_cache = train_ds.cache().prefetch(buffer_size=auto_tune)
-val_cache = val_ds.cache().prefetch(buffer_size=auto_tune)
-
-model = load_model(  # 모델이 있다면 불러오고 없다면 학습 및 저장한다.
-    "MobileNet(alpha=1.0)",
-    applications.MobileNet(include_top=False, input_shape=data_shape, pooling="avg"),  # 전이 학습할 모델을 선정한다.
-    train_cache,
-    val_cache,
-    data_shape,
-    len(class_names),
-    batch_size
+# 해당 모델이 있다면 불러오고 없다면 학습 및 저장한다.
+IMG_SHAPE = IMG_SIZE + (3,)
+num_classes = len(class_names)
+model = load_model(
+    "MobileNetV2(alpha=1.0)",
+    tf.keras.applications.MobileNetV2(input_shape=IMG_SHAPE, include_top=False, weights='imagenet', alpha=1.0),
+    tf.keras.applications.mobilenet_v2.preprocess_input,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
 )
-# predict_test(val_cache, model, class_names)  # 검증 데이터의 일부를 예측하고 출력한다.
 
-# 한 개의 이미지를 예측할 때, 아래와 같이 수행한다.
-# for images, labels in val_ds.take(1):
-#     img = images[0]
-#     img = (np.expand_dims(img, 0))
-#     predictions_single = model.predict(img)
-#     plt.figure(figsize=(9, 4))
-#     plt.subplot(1, 2, 1)
-#     plot.plot_image(0, predictions_single, [labels[0]], [images[0] * 255], class_names)
-#     plt.subplot(1, 2, 2)
-#     plot.plot_value_array(0, predictions_single, [labels[0]], class_names)
-#     plt.show()
+predict_test(validation_dataset, model, class_names)  # 테스트 데이터의 일부를 예측하고 출력한다.

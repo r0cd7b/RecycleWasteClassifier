@@ -1,10 +1,12 @@
+from rotate import *
+
 import RPi.GPIO as GPIO
 import picamera
-from tensorflow.keras import models
 from io import BytesIO
 from PIL import Image
+
 import numpy as np
-from rotate import *
+import tensorflow as tf
 
 # motor pin set up
 motor_pins1 = [12, 16, 20, 21]  # IN1(OUT1), IN2(OUT2), IN3(OUT3), IN4(OUT4)
@@ -31,10 +33,10 @@ print("Pi Camera setting is completed.")
 # Set class names and load cnn model
 print("Start CNN model loading.")
 class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic']
-model_h5 = 'models/MobileNet(alpha=1.0).h5'  # 불러올 모델 파일의 이름을 정한다.
+model_h5 = 'models/MobileNetV2(alpha=1.0).h5'  # 불러올 모델 파일의 이름을 정한다.
 model = None
 try:
-    model = models.load_model(model_h5)  # 모델을 불러온다.
+    model = tf.keras.models.load_model(model_h5)  # 모델을 불러온다.
     print("CNN model loading is completed.")
 except Exception as e:
     print(e)
@@ -49,21 +51,22 @@ while model:
     stream = BytesIO()
     camera.capture(stream, format='jpeg')
     stream.seek(0)
-    image = Image.open(stream)
-    image = image.crop((image_size, image_size, image_size * 2, image_size * 2))
+    img = Image.open(stream)
+    img = img.crop((image_size, image_size, image_size * 2, image_size * 2))
 
     # Predict image.
-    image_array = np.array(image)
-    image_array = (np.expand_dims(image_array, 0))
-    predictions = model.predict(image_array)
-    prediction = np.argmax(predictions[0])
-    print(f"{100 * np.max(predictions[0]):2.0f}% {class_names[prediction]}")
+    img_array = tf.keras.preprocessing.image.img_to_array(img)
+    img_array = tf.expand_dims(img_array, 0)
+    predictions = model.predict(img_array)
+    score = tf.nn.softmax(predictions[0])
+    prediction = np.argmax(score)
+    print(f"{class_names[prediction]} {100 * np.max(score):.2f}%")
 
     if prediction == 2:  # Skip for nothing class.
         continue
 
     # Save predicted image.
-    image.save(f"garbage_images/{int(time.time())}_{class_names[prediction]}.jpg")
+    img.save(f"garbage_images/{int(time.time())}_{class_names[prediction]}.jpg")
 
     # Operate the motor.
     if prediction > 2:  # Except for the nothing class, the order number is determined.

@@ -58,12 +58,11 @@ def load_model(preprocess_input, base_model, model_name, train_dataset, validati
         print(f"initial loss: {loss0}")
         print(f"initial accuracy: {accuracy0}")
 
-        # 모델을 훈련한다.
         early_stop = tf.keras.callbacks.EarlyStopping(monitor="val_loss",
                                                       patience=10)  # 지정된 에포크 횟수 동안 성능 향상이 없으면 자동으로 훈련이 멈춘다.
-        history = model.fit(train_dataset, epochs=1000, validation_data=validation_dataset, callbacks=[early_stop])
-        initial_epochs = history.params["epochs"]
-        print(f"initial epochs: {initial_epochs}")
+
+        history = model.fit(train_dataset, epochs=1000, validation_data=validation_dataset,
+                            callbacks=[early_stop])  # 모델을 훈련한다.
 
         base_model.trainable = True  # base_model을 고정 해제한다.
         print(f"Number of layers in the base model: {len(base_model.layers)}")
@@ -78,11 +77,8 @@ def load_model(preprocess_input, base_model, model_name, train_dataset, validati
         model.summary()  # 모델 아키텍처를 살펴본다.
         print(f"Length of trainable variables in the model: {len(model.trainable_variables)}")  # 훈련 가능한 객체 수를 확인한다.
 
-        # 미세 조정된 모델로 훈련을 계속한다.
-        fine_tune_epochs = 10
-        total_epochs = initial_epochs + fine_tune_epochs
-        history_fine = model.fit(train_dataset, epochs=total_epochs, initial_epoch=history.epoch[-1],
-                                 validation_data=validation_dataset, callbacks=[early_stop])
+        history_fine = model.fit(train_dataset, epochs=1000, initial_epoch=history.epoch[-1],
+                                 validation_data=validation_dataset, callbacks=[early_stop])  # 미세 조정된 모델로 훈련을 계속한다.
 
         model.save(model_dir)  # 학습한 모델을 저장한다.
 

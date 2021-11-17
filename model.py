@@ -83,29 +83,26 @@ def load_model(preprocess_input, base_model, model_name, train_dataset, validati
 
         model.save(model_dir)  # 학습한 모델을 저장한다.
 
-        # 전체 학습 과정을 출력한다.
+        # 출력할 변수 값을 준비한다.
         acc = history.history["accuracy"] + history_fine.history['accuracy']
         val_acc = history.history["val_accuracy"] + history_fine.history['val_accuracy']
-
         loss = history.history["loss"] + history_fine.history['loss']
         val_loss = history.history["val_loss"] + history_fine.history['val_loss']
 
+        # 전체 학습 과정을 출력한다.
         plt.figure(figsize=(9, 9))
-
         plt.subplot(2, 1, 1)
         plt.plot(acc, label='Training Accuracy')
         plt.plot(val_acc, label='Validation Accuracy')
         plt.plot([initial_epochs - 1, initial_epochs - 1], plt.ylim(), label='Start Fine Tuning')
         plt.legend(loc='lower right')
         plt.title('Training and Validation Accuracy')
-
         plt.subplot(2, 1, 2)
         plt.plot(loss, label='Training Loss')
         plt.plot(val_loss, label='Validation Loss')
         plt.plot([initial_epochs - 1, initial_epochs - 1], plt.ylim(), label='Start Fine Tuning')
         plt.legend(loc='upper right')
         plt.title('Training and Validation Loss')
-
         plt.xlabel('epoch')
         plt.savefig(f"model_information/3_{model_name}_history.png")
 

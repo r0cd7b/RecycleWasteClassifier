@@ -102,6 +102,11 @@ def load_model(model_name, preprocess_input, base_model, train_dataset, validati
 
 
 def predict_test(validation_dataset, model, class_names, model_name):  # 모델로 예측을 수행한다.
+    # 검증 세트를 사용하여 데이터에 대한 모델의 성능을 확인한다.
+    loss, accuracy = model.evaluate(validation_dataset)
+    print(f"Validation loss: {loss}")
+    print(f"Validation accuracy: {accuracy}")
+
     image_batch, label_batch = validation_dataset.as_numpy_iterator().next()
     predictions = model.predict_on_batch(image_batch)
     predictions = tf.nn.softmax(predictions)

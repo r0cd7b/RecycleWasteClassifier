@@ -13,9 +13,9 @@ BATCH_SIZE = 32
 IMG_SIZE = (224, 224)
 IMG_SHAPE = IMG_SIZE + (3,)
 seed = 123
-model_name = "MobileNet(alpha=1.0)"
-preprocess_input = tf.keras.applications.mobilenet.preprocess_input
-base_model = tf.keras.applications.MobileNet(input_shape=IMG_SHAPE, include_top=False, weights='imagenet', alpha=1.0)
+model_name = "EfficientNet-B0"
+preprocess_input = tf.keras.applications.efficientnet.preprocess_input
+base_model = tf.keras.applications.EfficientNetB0(input_shape=IMG_SHAPE, include_top=False, weights='imagenet')
 
 train_dataset = image_dataset_from_directory(  # 훈련 데이터를 나눈다.
     data_dir,

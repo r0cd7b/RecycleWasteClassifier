@@ -72,19 +72,6 @@ train_model(
     class_names
 )
 
-model_name = "MobileNet(alpha=0.50)"
-train_model(
-    tf.keras.applications.mobilenet.preprocess_input,
-    tf.keras.applications.MobileNet(alpha=0.50, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
-    model_name,
-    train_dataset,
-    validation_dataset,
-    num_classes,
-    IMG_SHAPE,
-    data_augmentation,
-    class_names
-)
-
 model_name = "MobileNetV2(alpha=0.35)"
 train_model(
     tf.keras.applications.mobilenet_v2.preprocess_input,
@@ -111,10 +98,10 @@ train_model(
     class_names
 )
 
-model_name = "MobileNetV3(small)"
+model_name = "MobileNet(alpha=0.50)"
 train_model(
-    tf.keras.applications.mobilenet_v3.preprocess_input,
-    tf.keras.applications.MobileNetV3Small(input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    tf.keras.applications.mobilenet.preprocess_input,
+    tf.keras.applications.MobileNet(alpha=0.50, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
     model_name,
     train_dataset,
     validation_dataset,
@@ -124,10 +111,10 @@ train_model(
     class_names
 )
 
-model_name = "MobileNet(alpha=0.75)"
+model_name = "MobileNetV3(small)"
 train_model(
-    tf.keras.applications.mobilenet.preprocess_input,
-    tf.keras.applications.MobileNet(alpha=0.75, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    tf.keras.applications.mobilenet_v3.preprocess_input,
+    tf.keras.applications.MobileNetV3Small(input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
     model_name,
     train_dataset,
     validation_dataset,
@@ -150,6 +137,19 @@ train_model(
     class_names
 )
 
+model_name = "MobileNet(alpha=0.75)"
+train_model(
+    tf.keras.applications.mobilenet.preprocess_input,
+    tf.keras.applications.MobileNet(alpha=0.75, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation,
+    class_names
+)
+
 model_name = "MobileNetV2(alpha=1.0)"
 train_model(
     tf.keras.applications.mobilenet_v2.preprocess_input,
@@ -163,10 +163,10 @@ train_model(
     class_names
 )
 
-model_name = "MobileNet(alpha=1.0)"
+model_name = "MobileNetV3(large)"
 train_model(
-    tf.keras.applications.mobilenet.preprocess_input,
-    tf.keras.applications.MobileNet(alpha=1.0, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    tf.keras.applications.mobilenet_v3.preprocess_input,
+    tf.keras.applications.MobileNetV3Large(input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
     model_name,
     train_dataset,
     validation_dataset,
@@ -176,10 +176,10 @@ train_model(
     class_names
 )
 
-model_name = "EfficientNet-B0"
+model_name = "MobileNet(alpha=1.0)"
 train_model(
-    tf.keras.applications.efficientnet.preprocess_input,
-    tf.keras.applications.EfficientNetB0(input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    tf.keras.applications.mobilenet.preprocess_input,
+    tf.keras.applications.MobileNet(alpha=1.0, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
     model_name,
     train_dataset,
     validation_dataset,

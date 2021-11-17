@@ -105,6 +105,7 @@ def train_model(preprocess_input, base_model, model_name, train_dataset, validat
         plt.ylabel("Cross Entropy")
         plt.title(f"{model_name} Training and Validation Loss")
         plt.xlabel("epoch")
+        plt.tight_layout()
         plt.savefig(f"model_information/3_{model_name}_history.png")
 
     # 검증 데이터 셋으로 모델을 평가한다.
@@ -126,6 +127,7 @@ def train_model(preprocess_input, base_model, model_name, train_dataset, validat
         plt.title(
             f"{class_names[np.argmax(predictions[i])]} {100 * np.max(predictions[i]):.2f}% ({class_names[label_batch[i]]})")
         plt.axis("off")
+    plt.tight_layout()
     plt.savefig(f"model_information/4_{model_name}_predictions.png")
 
     return model

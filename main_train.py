@@ -28,6 +28,7 @@ for images, labels in train_dataset.take(1):
         plt.imshow(images[i].numpy().astype("uint8"))
         plt.title(class_names[labels[i]])
         plt.axis("off")
+plt.tight_layout()
 plt.savefig('model_information/1_train_dataset.png')
 
 # 버퍼링된 프리페치를 사용하여 I/O 차단 없이 디스크에서 이미지를 로드한다.
@@ -50,6 +51,7 @@ for image, _ in train_dataset.take(1):
         augmented_image = data_augmentation(tf.expand_dims(first_image, 0))
         plt.imshow(augmented_image[0] / 255)
         plt.axis('off')
+plt.tight_layout()
 plt.savefig('model_information/2_augmented_images.png')
 
 # 모델에 적용할 이미지의 shape과 클래스 수를 준비한다.

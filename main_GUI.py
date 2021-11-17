@@ -23,6 +23,7 @@ class MainScreen:
 
         self.myFont = font.Font(family='Helvetica', size=18, weight='bold')
         self.thread_flag = False
+        self.manual_state = -1
 
         # Set Button
         self.canButton = tk.Button(self.window, text="Can", font=self.myFont, command=self.canClick)
@@ -108,6 +109,10 @@ class MainScreen:
         self.t1 = threading.Thread(target=self.predict_thread, args=())
         self.t1.daemon = True
         self.t1.start()
+        
+        self.t2 = threading.Thread(target=self.predict_thread, args=())
+        self.t2.daemon = True
+        self.t2.start()
 
         self.window.mainloop()  # Exit GUI
 
@@ -157,6 +162,9 @@ class MainScreen:
                 if prediction > 2:  # Except for the nothing class, the order number is determined.
                     prediction -= 1
                 self.current_angle = move_motor(self.current_angle, prediction, self.motor_pins1, self.motor_pins2)
+            elif self.manual_state > -1:
+                self.current_angle = move_motor(self.current_angle, self.manual_state, self.motor_pins1, self.motor_pins2)
+                self.manual_state = -1
 
     def selectRadio(self):  # 라디오 버튼 이벤트
         if self.r.get() == 1:
@@ -178,23 +186,23 @@ class MainScreen:
 
     def canClick(self):
         self.label_text.set('Can')
-        self.current_angle = move_motor(self.current_angle, 0, self.motor_pins1, self.motor_pins2)
+        self.manual_state = 0
 
     def glassClick(self):
         self.label_text.set('Glass')
-        self.current_angle = move_motor(self.current_angle, 1, self.motor_pins1, self.motor_pins2)
+        self.manual_state = 1
 
     def paperClick(self):
         self.label_text.set('Paper')
-        self.current_angle = move_motor(self.current_angle, 2, self.motor_pins1, self.motor_pins2)
+        self.manual_state = 2
 
     def petClick(self):
         self.label_text.set('Pet')
-        self.current_angle = move_motor(self.current_angle, 3, self.motor_pins1, self.motor_pins2)
+        self.manual_state = 3
 
     def plasticClick(self):
         self.label_text.set('Plastic')
-        self.current_angle = move_motor(self.current_angle, 4, self.motor_pins1, self.motor_pins2)
+        self.manual_state = 4
 
 
 if __name__ == "__main__":

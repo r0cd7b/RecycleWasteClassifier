@@ -51,9 +51,133 @@ plt.savefig('model_information/2_augmented_images.png')
 IMG_SHAPE = IMG_SIZE + (3,)
 num_classes = len(class_names)
 
+# 모델을 불러오거나 학습하고 검증 데이터를 이용하여 평가 및 예측한다.
+model_name = "MobileNet(alpha=0.25)"
+model = load_model(
+    tf.keras.applications.mobilenet.preprocess_input,
+    tf.keras.applications.MobileNet(alpha=0.25, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)
+
+model_name = "MobileNet(alpha=0.50)"
+model = load_model(
+    tf.keras.applications.mobilenet.preprocess_input,
+    tf.keras.applications.MobileNet(alpha=0.50, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)
+
+model_name = "MobileNetV2(alpha=0.35)"
+model = load_model(
+    tf.keras.applications.mobilenet_v2.preprocess_input,
+    tf.keras.applications.MobileNetV2(alpha=0.35, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)
+
+model_name = "MobileNetV2(alpha=0.50)"
+model = load_model(
+    tf.keras.applications.mobilenet_v2.preprocess_input,
+    tf.keras.applications.MobileNetV2(alpha=0.50, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)
+
+model_name = "MobileNetV3(small)"
+model = load_model(
+    tf.keras.applications.mobilenet_v3.preprocess_input,
+    tf.keras.applications.MobileNetV3Small(input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)
+
+model_name = "MobileNet(alpha=0.75)"
+model = load_model(
+    tf.keras.applications.mobilenet.preprocess_input,
+    tf.keras.applications.MobileNet(alpha=0.75, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)
+
+model_name = "MobileNetV2(alpha=0.75)"
+model = load_model(
+    tf.keras.applications.mobilenet_v2.preprocess_input,
+    tf.keras.applications.MobileNetV2(alpha=0.75, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)
+
+model_name = "MobileNetV2(alpha=1.0)"
+model = load_model(
+    tf.keras.applications.mobilenet_v2.preprocess_input,
+    tf.keras.applications.MobileNetV2(alpha=1.0, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)
+
+model_name = "MobileNet(alpha=1.0)"
+model = load_model(
+    tf.keras.applications.mobilenet.preprocess_input,
+    tf.keras.applications.MobileNet(alpha=1.0, input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)
+
 model_name = "EfficientNet-B0"
-model = load_model(tf.keras.applications.efficientnet.preprocess_input,
-                   tf.keras.applications.EfficientNetB0(input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
-                   model_name, train_dataset, validation_dataset, num_classes, IMG_SHAPE,
-                   data_augmentation)  # 해당 모델이 있다면 불러오고 없다면 학습 및 저장한다.
-predict_test(validation_dataset, model, class_names, model_name)  # 테스트 데이터의 일부를 예측하고 출력한다.
+model = load_model(
+    tf.keras.applications.efficientnet.preprocess_input,
+    tf.keras.applications.EfficientNetB0(input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+    model_name,
+    train_dataset,
+    validation_dataset,
+    num_classes,
+    IMG_SHAPE,
+    data_augmentation
+)
+predict_test(validation_dataset, model, class_names, model_name)

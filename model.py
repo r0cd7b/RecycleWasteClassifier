@@ -49,12 +49,9 @@ def load_model(model_name, preprocess_input, base_model, train_dataset, validati
         # 복수의 클래스가 있고 모델이 선형 출력을 제공하므로 from_logits=True와 함께 Sparse Categorical Crossentropy 손실을 사용한다.
         base_learning_rate = 0.0001
         model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=base_learning_rate),
-                      loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                      metrics=["accuracy"])
-
-        model.summary()  # 최종 모델 아키텍처를 살펴본다.
-
-        print(f"len(model.trainable_variables): {len(model.trainable_variables)}")  # 가중치와 바이어스로 나뉘는 두 개의 객체를 확인한다.
+                      loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=["accuracy"])
+        model.summary()  # 모델 아키텍처를 살펴본다.
+        print(f"Length of trainable variables in the model: {len(model.trainable_variables)}")  # 훈련 가능한 객체 수를 확인한다.
 
         # 훈련하기 전 초기 손실과 정확도를 확인한다.
         loss0, accuracy0 = model.evaluate(validation_dataset)
@@ -62,24 +59,39 @@ def load_model(model_name, preprocess_input, base_model, train_dataset, validati
         print(f"initial accuracy: {accuracy0}")
 
         # 모델을 훈련한다.
-        early_stop = tf.keras.callbacks.EarlyStopping(
-            monitor="val_loss", patience=10)  # 지정된 에포크 횟수 동안 성능 향상이 없으면 자동으로 훈련이 멈춘다.
-        history = model.fit(
-            train_dataset,
-            epochs=1000,
-            validation_data=validation_dataset,
-            callbacks=[early_stop]
-        )
+        early_stop = tf.keras.callbacks.EarlyStopping(monitor="val_loss",
+                                                      patience=10)  # 지정된 에포크 횟수 동안 성능 향상이 없으면 자동으로 훈련이 멈춘다.
+        history = model.fit(train_dataset, epochs=1000, validation_data=validation_dataset, callbacks=[early_stop])
         initial_epochs = history.params["epochs"]
         print(f"initial epochs: {initial_epochs}")
+
+        base_model.trainable = True  # base_model을 고정 해제한다.
+        print(f"Number of layers in the base model: {len(base_model.layers)}")
+
+        fine_tune_at = 100  # 미세 조정할 레이어 위치를 선정한다.
+        for layer in base_model.layers[:fine_tune_at]:  # "fine_tune_at" 전에 모든 레이어를 고정한다.
+            layer.trainable = False
+
+        model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                      optimizer=tf.keras.optimizers.RMSprop(learning_rate=base_learning_rate / 10),
+                      metrics=['accuracy'])  # 더 낮은 학습률을 사용하여 모델을 컴파일한다.
+        model.summary()  # 모델 아키텍처를 살펴본다.
+        print(f"Length of trainable variables in the model: {len(model.trainable_variables)}")  # 훈련 가능한 객체 수를 확인한다.
+
+        # 미세 조정된 모델로 훈련을 계속한다.
+        fine_tune_epochs = 10
+        total_epochs = initial_epochs + fine_tune_epochs
+        history_fine = model.fit(train_dataset, epochs=total_epochs, initial_epoch=history.epoch[-1],
+                                 validation_data=validation_dataset, callbacks=[early_stop])
+
         model.save(model_dir)  # 학습한 모델을 저장한다.
 
-        # 학습 과정을 출력한다.
-        acc = history.history["accuracy"]
-        val_acc = history.history["val_accuracy"]
+        # 전체 학습 과정을 출력한다.
+        acc = history.history["accuracy"] + history_fine.history['accuracy']
+        val_acc = history.history["val_accuracy"] + history_fine.history['val_accuracy']
 
-        loss = history.history["loss"]
-        val_loss = history.history["val_loss"]
+        loss = history.history["loss"] + history_fine.history['loss']
+        val_loss = history.history["val_loss"] + history_fine.history['val_loss']
 
         plt.figure(figsize=(9, 9))
 

@@ -17,22 +17,11 @@ model_name = "EfficientNet-B0"
 preprocess_input = tf.keras.applications.efficientnet.preprocess_input
 base_model = tf.keras.applications.EfficientNetB0(input_shape=IMG_SHAPE, include_top=False, weights='imagenet')
 
-train_dataset = image_dataset_from_directory(  # 훈련 데이터를 나눈다.
-    data_dir,
-    validation_split=0.2,
-    subset="training",
-    seed=seed,
-    image_size=IMG_SIZE,
-    batch_size=BATCH_SIZE
-)
-validation_dataset = image_dataset_from_directory(  # 검증 데이터를 나눈다.
-    data_dir,
-    validation_split=0.2,
-    subset="validation",
-    seed=seed,
-    image_size=IMG_SIZE,
-    batch_size=BATCH_SIZE
-)
+# 훈련과 검증 데이터를 나눈다.
+train_dataset = image_dataset_from_directory(data_dir, validation_split=0.2, subset="training", seed=seed,
+                                             image_size=IMG_SIZE, batch_size=BATCH_SIZE)
+validation_dataset = image_dataset_from_directory(data_dir, validation_split=0.2, subset="validation", seed=seed,
+                                                  image_size=IMG_SIZE, batch_size=BATCH_SIZE)
 
 class_names = train_dataset.class_names
 plt.figure(figsize=(9, 9))
@@ -64,15 +53,7 @@ for image, _ in train_dataset.take(1):  # 증강된 데이터를 확인한다.
 plt.savefig('model_information/2_augmented_images.png')
 
 num_classes = len(class_names)
-model = load_model(  # 해당 모델이 있다면 불러오고 없다면 학습 및 저장한다.
-    model_name,
-    preprocess_input,
-    base_model,
-    train_dataset,
-    validation_dataset,
-    num_classes,
-    IMG_SHAPE,
-    data_augmentation
-)
+model = load_model(model_name, preprocess_input, base_model, train_dataset, validation_dataset, num_classes, IMG_SHAPE,
+                   data_augmentation)  # 해당 모델이 있다면 불러오고 없다면 학습 및 저장한다.
 
 predict_test(validation_dataset, model, class_names, model_name)  # 테스트 데이터의 일부를 예측하고 출력한다.

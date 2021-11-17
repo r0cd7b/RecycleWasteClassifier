@@ -97,7 +97,6 @@ def load_model(model_name, preprocess_input, base_model, train_dataset, validati
 
         plt.xlabel("epoch")
         plt.savefig(f"model_information/3_{model_name}_history.png")
-        # plt.show()
 
     return model
 
@@ -117,4 +116,3 @@ def predict_test(validation_dataset, model, class_names, model_name):  # 모델�
             f"{class_names[np.argmax(predictions[i])]} {100 * np.max(predictions[i]):.2f}% ({class_names[label_batch[i]]})")
         plt.axis("off")
     plt.savefig(f"model_information/4_{model_name}_predictions.png")
-    # plt.show()

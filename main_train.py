@@ -43,7 +43,6 @@ for images, labels in train_dataset.take(1):  # 훈련용 데이터셋에서 처
         plt.title(class_names[labels[i]])
         plt.axis("off")
 plt.savefig('model_information/1_train_dataset.png')
-# plt.show()
 
 # 버퍼링된 프리페치를 사용하여 I/O 차단 없이 디스크에서 이미지를 로드한다.
 AUTOTUNE = tf.data.AUTOTUNE
@@ -63,7 +62,6 @@ for image, _ in train_dataset.take(1):  # 증강된 데이터를 확인한다.
         plt.imshow(augmented_image[0] / 255)
         plt.axis('off')
 plt.savefig('model_information/2_augmented_images.png')
-# plt.show()
 
 num_classes = len(class_names)
 model = load_model(  # 해당 모델이 있다면 불러오고 없다면 학습 및 저장한다.

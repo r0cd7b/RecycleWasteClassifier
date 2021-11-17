@@ -12,6 +12,7 @@ def load_model(model_name, preprocess_input, base_model, train_dataset, validati
 
         # 검증 데이터 셋으로 모델을 평가한다.
         loss, accuracy = model.evaluate(validation_dataset)
+        print(f"Validation loss: {loss}")
         print(f"Validation accuracy: {accuracy}")
 
     except Exception as e:
@@ -20,7 +21,7 @@ def load_model(model_name, preprocess_input, base_model, train_dataset, validati
         # 특징 블록의 shape를 확인한다.
         image_batch, label_batch = next(iter(train_dataset))
         feature_batch = base_model(image_batch)
-        print(f"feature_batch.shape: {feature_batch.shape}")
+        print(f"Feature batch shape: {feature_batch.shape}")
 
         base_model.trainable = False  # 훈련 가능한 층의 가중치를 고정한다.
         base_model.summary()  # 기본 모델 아키텍처를 살펴본다.
@@ -28,12 +29,12 @@ def load_model(model_name, preprocess_input, base_model, train_dataset, validati
         # 해당 레이어를 사용하여 특성을 이미지당 하나의 1280-요소 벡터로 변환하여 5x5 공간 위치에 대한 평균을 구한다.
         global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
         feature_batch_average = global_average_layer(feature_batch)
-        print(f"feature_batch_average.shape: {feature_batch_average.shape}")
+        print(f"Feature batch average shape: {feature_batch_average.shape}")
 
         # 해당 레이어를 사용하여 특성을 이미지당 복수의 예측으로 변환한다.
         prediction_layer = tf.keras.layers.Dense(num_classes)
         prediction_batch = prediction_layer(feature_batch_average)
-        print(f"prediction_batch.shape: {prediction_batch.shape}")
+        print(f"Prediction batch shape: {prediction_batch.shape}")
 
         #  데이터 증강, 크기 조정, base_model 및 특성 추출기 레이어를 함께 연결하여 모델을 구축한다.
         inputs = tf.keras.Input(shape=img_shape)
@@ -55,21 +56,22 @@ def load_model(model_name, preprocess_input, base_model, train_dataset, validati
 
         print(f"len(model.trainable_variables): {len(model.trainable_variables)}")  # 가중치와 바이어스로 나뉘는 두 개의 객체를 확인한다.
 
-        # 훈련하기 전 손실과 정확도를 확인한다.
+        # 훈련하기 전 초기 손실과 정확도를 확인한다.
         loss0, accuracy0 = model.evaluate(validation_dataset)
         print(f"initial loss: {loss0}")
         print(f"initial accuracy: {accuracy0}")
 
         # 모델을 훈련한다.
-        initial_epochs = 1000
         early_stop = tf.keras.callbacks.EarlyStopping(
             monitor="val_loss", patience=10)  # 지정된 에포크 횟수 동안 성능 향상이 없으면 자동으로 훈련이 멈춘다.
         history = model.fit(
             train_dataset,
-            epochs=initial_epochs,
+            epochs=1000,
             validation_data=validation_dataset,
             callbacks=[early_stop]
         )
+        initial_epochs = history.params["epochs"]
+        print(f"initial epochs: {initial_epochs}")
         model.save(model_dir)  # 학습한 모델을 저장한다.
 
         # 학습 과정을 출력한다.
@@ -102,11 +104,6 @@ def load_model(model_name, preprocess_input, base_model, train_dataset, validati
 
 
 def predict_test(validation_dataset, model, class_names, model_name):  # 모델로 예측을 수행한다.
-    # 검증 세트를 사용하여 데이터에 대한 모델의 성능을 확인한다.
-    loss, accuracy = model.evaluate(validation_dataset)
-    print(f"Validation loss: {loss}")
-    print(f"Validation accuracy: {accuracy}")
-
     image_batch, label_batch = validation_dataset.as_numpy_iterator().next()
     predictions = model.predict_on_batch(image_batch)
     predictions = tf.nn.softmax(predictions)

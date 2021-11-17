@@ -7,8 +7,9 @@ def load_model(preprocess_input, base_model, model_name, train_dataset, validati
                data_augmentation):  # 모델을 불러오거나 학습한다.
     model_dir = f"models/{model_name}.h5"
     try:
-        model = tf.keras.models.load_model(model_dir)  # 모델을 불러온다.
-        model.summary()  # 모델 구조를 출력한다.
+        # 모델을 불러오고 구조를 출력한다.
+        model = tf.keras.models.load_model(model_dir)
+        model.summary()
 
         # 검증 데이터 셋으로 모델을 평가한다.
         loss, accuracy = model.evaluate(validation_dataset)

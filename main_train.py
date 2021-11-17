@@ -7,22 +7,17 @@ from tensorflow.keras.preprocessing import image_dataset_from_directory
 
 data_dir = pathlib.Path("garbage_images")  # 이미지 데이터 파일의 경로를 지정한다.
 
-# 무작위 시드를 고정하고 배치 크기와 이미지 크기를 지정한다.
-BATCH_SIZE = 32
+BATCH_SIZE = 32  # 배치 크기를 정한다.
 
+# 이미지 크기과 무작위 시드 값을 정한다.
 IMG_SIZE = (224, 224)
-IMG_SHAPE = IMG_SIZE + (3,)
 seed = 123
-model_name = "EfficientNet-B0"
-preprocess_input = tf.keras.applications.efficientnet.preprocess_input
-base_model = tf.keras.applications.EfficientNetB0(input_shape=IMG_SHAPE, include_top=False, weights='imagenet')
 
 # 훈련과 검증 데이터를 나눈다.
 train_dataset = image_dataset_from_directory(data_dir, validation_split=0.2, subset="training", seed=seed,
                                              image_size=IMG_SIZE, batch_size=BATCH_SIZE)
 validation_dataset = image_dataset_from_directory(data_dir, validation_split=0.2, subset="validation", seed=seed,
                                                   image_size=IMG_SIZE, batch_size=BATCH_SIZE)
-
 class_names = train_dataset.class_names
 plt.figure(figsize=(9, 9))
 for images, labels in train_dataset.take(1):  # 훈련용 데이터셋에서 처음 9 개의 이미지 및 레이블을 보여준다.
@@ -38,7 +33,8 @@ AUTOTUNE = tf.data.AUTOTUNE
 train_dataset = train_dataset.prefetch(buffer_size=AUTOTUNE)
 validation_dataset = validation_dataset.prefetch(buffer_size=AUTOTUNE)
 
-data_augmentation = tf.keras.Sequential([  # 데이터 증강을 위해 회전 및 수평 뒤집기로 훈련 이미지에 다양성을 인위적으로 도입한다.
+# 데이터 증강을 위해 회전 및 수평 뒤집기로 훈련 이미지에 다양성을 인위적으로 도입한다.
+data_augmentation = tf.keras.Sequential([
     tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
     tf.keras.layers.experimental.preprocessing.RandomRotation(0.2),
 ])
@@ -52,8 +48,12 @@ for image, _ in train_dataset.take(1):  # 증강된 데이터를 확인한다.
         plt.axis('off')
 plt.savefig('model_information/2_augmented_images.png')
 
+IMG_SHAPE = IMG_SIZE + (3,)
 num_classes = len(class_names)
-model = load_model(model_name, preprocess_input, base_model, train_dataset, validation_dataset, num_classes, IMG_SHAPE,
-                   data_augmentation)  # 해당 모델이 있다면 불러오고 없다면 학습 및 저장한다.
 
+model_name = "EfficientNet-B0"
+model = load_model(tf.keras.applications.efficientnet.preprocess_input,
+                   tf.keras.applications.EfficientNetB0(input_shape=IMG_SHAPE, include_top=False, weights='imagenet'),
+                   model_name, train_dataset, validation_dataset, num_classes, IMG_SHAPE,
+                   data_augmentation)  # 해당 모델이 있다면 불러오고 없다면 학습 및 저장한다.
 predict_test(validation_dataset, model, class_names, model_name)  # 테스트 데이터의 일부를 예측하고 출력한다.

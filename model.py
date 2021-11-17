@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 
 
-def load_model(model_name, preprocess_input, base_model, train_dataset, validation_dataset, num_classes, img_shape,
+def load_model(preprocess_input, base_model, model_name, train_dataset, validation_dataset, num_classes, img_shape,
                data_augmentation):  # 모델을 불러오거나 학습한다.
     model_dir = f"models/{model_name}.h5"
     try:

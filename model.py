@@ -3,8 +3,9 @@ import numpy as np
 import tensorflow as tf
 
 
-def load_model(model_dir, preprocess_input, base_model, train_dataset, validation_dataset, num_classes, img_shape,
+def load_model(model_name, preprocess_input, base_model, train_dataset, validation_dataset, num_classes, img_shape,
                data_augmentation):  # 모델을 불러오거나 학습한다.
+    model_dir = f"models/{model_name}.h5"
     try:
         model = tf.keras.models.load_model(model_dir)  # 모델을 불러온다.
         model.summary()  # 모델 구조를 출력한다.
@@ -48,7 +49,7 @@ def load_model(model_dir, preprocess_input, base_model, train_dataset, validatio
         base_learning_rate = 0.0001
         model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=base_learning_rate),
                       loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                      metrics=['accuracy'])
+                      metrics=["accuracy"])
 
         model.summary()  # 최종 모델 아키텍처를 살펴본다.
 
@@ -62,7 +63,7 @@ def load_model(model_dir, preprocess_input, base_model, train_dataset, validatio
         # 모델을 훈련한다.
         initial_epochs = 1000
         early_stop = tf.keras.callbacks.EarlyStopping(
-            monitor='val_loss', patience=10)  # 지정된 에포크 횟수 동안 성능 향상이 없으면 자동으로 훈련이 멈춘다.
+            monitor="val_loss", patience=10)  # 지정된 에포크 횟수 동안 성능 향상이 없으면 자동으로 훈련이 멈춘다.
         history = model.fit(
             train_dataset,
             epochs=initial_epochs,
@@ -72,35 +73,36 @@ def load_model(model_dir, preprocess_input, base_model, train_dataset, validatio
         model.save(model_dir)  # 학습한 모델을 저장한다.
 
         # 학습 과정을 출력한다.
-        acc = history.history['accuracy']
-        val_acc = history.history['val_accuracy']
+        acc = history.history["accuracy"]
+        val_acc = history.history["val_accuracy"]
 
-        loss = history.history['loss']
-        val_loss = history.history['val_loss']
+        loss = history.history["loss"]
+        val_loss = history.history["val_loss"]
 
         plt.figure(figsize=(9, 9))
 
         plt.subplot(2, 1, 1)
-        plt.plot(acc, label='Training Accuracy')
-        plt.plot(val_acc, label='Validation Accuracy')
-        plt.legend(loc='lower right')
-        plt.ylabel('Accuracy')
-        plt.title('Training and Validation Accuracy')
+        plt.plot(acc, label="Training Accuracy")
+        plt.plot(val_acc, label="Validation Accuracy")
+        plt.legend(loc="lower right")
+        plt.ylabel("Accuracy")
+        plt.title("Training and Validation Accuracy")
 
         plt.subplot(2, 1, 2)
-        plt.plot(loss, label='Training Loss')
-        plt.plot(val_loss, label='Validation Loss')
-        plt.legend(loc='upper right')
-        plt.ylabel('Cross Entropy')
-        plt.title('Training and Validation Loss')
+        plt.plot(loss, label="Training Loss")
+        plt.plot(val_loss, label="Validation Loss")
+        plt.legend(loc="upper right")
+        plt.ylabel("Cross Entropy")
+        plt.title("Training and Validation Loss")
 
-        plt.xlabel('epoch')
-        plt.show()
+        plt.xlabel("epoch")
+        plt.savefig(f"model_information/3_{model_name}_history.png")
+        # plt.show()
 
     return model
 
 
-def predict_test(validation_dataset, model, class_names):  # 모델로 예측을 수행한다.
+def predict_test(validation_dataset, model, class_names, model_name):  # 모델로 예측을 수행한다.
     image_batch, label_batch = validation_dataset.as_numpy_iterator().next()
     predictions = model.predict_on_batch(image_batch)
     predictions = tf.nn.softmax(predictions)
@@ -114,4 +116,5 @@ def predict_test(validation_dataset, model, class_names):  # 모델로 예측을
         plt.title(
             f"{class_names[np.argmax(predictions[i])]} {100 * np.max(predictions[i]):.2f}% ({class_names[label_batch[i]]})")
         plt.axis("off")
-    plt.show()
+    plt.savefig(f"model_information/4_{model_name}_predictions.png")
+    # plt.show()

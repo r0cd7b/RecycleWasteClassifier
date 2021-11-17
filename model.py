@@ -79,6 +79,7 @@ def load_model(preprocess_input, base_model, model_name, train_dataset, validati
 
         history_fine = model.fit(train_dataset, epochs=1000, initial_epoch=history.epoch[-1],
                                  validation_data=validation_dataset, callbacks=[early_stop])  # 미세 조정된 모델로 훈련을 계속한다.
+        initial_epochs = history.epoch[-1]
 
         model.save(model_dir)  # 학습한 모델을 저장한다.
 
@@ -92,20 +93,20 @@ def load_model(preprocess_input, base_model, model_name, train_dataset, validati
         plt.figure(figsize=(9, 9))
 
         plt.subplot(2, 1, 1)
-        plt.plot(acc, label="Training Accuracy")
-        plt.plot(val_acc, label="Validation Accuracy")
-        plt.legend(loc="lower right")
-        plt.ylabel("Accuracy")
-        plt.title("Training and Validation Accuracy")
+        plt.plot(acc, label='Training Accuracy')
+        plt.plot(val_acc, label='Validation Accuracy')
+        plt.plot([initial_epochs - 1, initial_epochs - 1], plt.ylim(), label='Start Fine Tuning')
+        plt.legend(loc='lower right')
+        plt.title('Training and Validation Accuracy')
 
         plt.subplot(2, 1, 2)
-        plt.plot(loss, label="Training Loss")
-        plt.plot(val_loss, label="Validation Loss")
-        plt.legend(loc="upper right")
-        plt.ylabel("Cross Entropy")
-        plt.title("Training and Validation Loss")
+        plt.plot(loss, label='Training Loss')
+        plt.plot(val_loss, label='Validation Loss')
+        plt.plot([initial_epochs - 1, initial_epochs - 1], plt.ylim(), label='Start Fine Tuning')
+        plt.legend(loc='upper right')
+        plt.title('Training and Validation Loss')
 
-        plt.xlabel("epoch")
+        plt.xlabel('epoch')
         plt.savefig(f"model_information/3_{model_name}_history.png")
 
     return model

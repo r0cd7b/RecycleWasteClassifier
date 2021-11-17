@@ -3,18 +3,15 @@ import numpy as np
 import tensorflow as tf
 
 
-def load_model(preprocess_input, base_model, model_name, train_dataset, validation_dataset, num_classes, img_shape,
-               data_augmentation):  # 모델을 불러오거나 학습한다.
+# 모델을 불러오거나 학습한다.
+def train_model(preprocess_input, base_model, model_name, train_dataset, validation_dataset, num_classes, img_shape,
+                data_augmentation, class_names):
     model_dir = f"models/{model_name}.h5"
+
     try:
         # 모델을 불러오고 구조를 출력한다.
         model = tf.keras.models.load_model(model_dir)
         model.summary()
-
-        # 검증 데이터 셋으로 모델을 평가한다.
-        loss, accuracy = model.evaluate(validation_dataset)
-        print(f"Validation loss: {loss}")
-        print(f"Validation accuracy: {accuracy}")
 
     except Exception as e:
         print(e)
@@ -107,10 +104,12 @@ def load_model(preprocess_input, base_model, model_name, train_dataset, validati
         plt.xlabel('epoch')
         plt.savefig(f"model_information/3_{model_name}_history.png")
 
-    return model
+    # 검증 데이터 셋으로 모델을 평가한다.
+    loss, accuracy = model.evaluate(validation_dataset)
+    print(f"Validation loss: {loss}")
+    print(f"Validation accuracy: {accuracy}")
 
-
-def predict_test(validation_dataset, model, class_names, model_name):  # 모델로 예측을 수행한다.
+    # 모델로 검증 데이터 셋에 대한 예측을 수행한다.
     image_batch, label_batch = validation_dataset.as_numpy_iterator().next()
     predictions = model.predict_on_batch(image_batch)
     predictions = tf.nn.softmax(predictions)
@@ -125,3 +124,5 @@ def predict_test(validation_dataset, model, class_names, model_name):  # 모델�
             f"{class_names[np.argmax(predictions[i])]} {100 * np.max(predictions[i]):.2f}% ({class_names[label_batch[i]]})")
         plt.axis("off")
     plt.savefig(f"model_information/4_{model_name}_predictions.png")
+
+    return model

@@ -107,6 +107,7 @@ def train_model(preprocess_input, base_model, model_name, train_dataset, validat
         plt.xlabel("epoch")
         plt.tight_layout()
         plt.savefig(f"model_information/3_{model_name}_history.png")
+        plt.close()
 
     # 검증 데이터 셋으로 모델을 평가한다.
     loss, accuracy = model.evaluate(validation_dataset)
@@ -129,5 +130,6 @@ def train_model(preprocess_input, base_model, model_name, train_dataset, validat
         plt.axis("off")
     plt.tight_layout()
     plt.savefig(f"model_information/4_{model_name}_predictions.png")
+    plt.close()
 
     return model

@@ -30,6 +30,7 @@ for images, labels in train_dataset.take(1):
         plt.axis("off")
 plt.tight_layout()
 plt.savefig('model_information/1_train_dataset.png')
+plt.close()
 
 # 버퍼링된 프리페치를 사용하여 I/O 차단 없이 디스크에서 이미지를 로드한다.
 AUTOTUNE = tf.data.AUTOTUNE
@@ -53,6 +54,7 @@ for image, _ in train_dataset.take(1):
         plt.axis('off')
 plt.tight_layout()
 plt.savefig('model_information/2_augmented_images.png')
+plt.close()
 
 # 모델에 적용할 이미지의 shape과 클래스 수를 준비한다.
 IMG_SHAPE = IMG_SIZE + (3,)

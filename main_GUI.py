@@ -14,6 +14,11 @@ import tensorflow as tf
 
 class MainScreen:
     def __init__(self):
+        self.classes = ['Cans', 'Colorless PET', 'Glass', 'Nothing', 'Paper', 'Plastic']
+        self.model_h5 = 'models/MobileNetV3(large).h5'  # Set name of CNN model file.
+        self.class_names = ['cans', 'colorless_pet', 'glass', 'nothing', 'paper', 'plastic']
+        self.nothing_index = 3
+        
         self.window = tk.Tk()  # Tkinter로 화면 생성.
         self.window.attributes('-fullscreen', True)  # 전체 화면으로 설정.
         self.fullScreenState = False  # 전체 화면 상태를 컨트롤하기 위한 변수.
@@ -26,12 +31,12 @@ class MainScreen:
         self.manual_state = -1
 
         # Set Button
-        self.cansButton = tk.Button(self.window, text="Cans", font=self.myFont, command=self.cansClick)
-        self.colorlessPETButton = tk.Button(self.window, text="Colorless PET", font=self.myFont,
+        self.cansButton = tk.Button(self.window, text=self.classes[0], font=self.myFont, command=self.cansClick)
+        self.colorlessPETButton = tk.Button(self.window, text=self.classes[1], font=self.myFont,
                                             command=self.colorlessPETClick)
-        self.glassButton = tk.Button(self.window, text="Glass", font=self.myFont, command=self.glassClick)
-        self.paperButton = tk.Button(self.window, text="Paper", font=self.myFont, command=self.paperClick)
-        self.plasticButton = tk.Button(self.window, text="Plastic", font=self.myFont, command=self.plasticClick)
+        self.glassButton = tk.Button(self.window, text=self.classes[3], font=self.myFont, command=self.glassClick)
+        self.paperButton = tk.Button(self.window, text=self.classes[4], font=self.myFont, command=self.paperClick)
+        self.plasticButton = tk.Button(self.window, text=self.classes[5], font=self.myFont, command=self.plasticClick)
         self.exitButton = tk.Button(self.window, text="x", font=self.myFont, command=self.on_closing)
 
         self.cansButton.place(x=440, y=120, width=140, height=80)
@@ -44,7 +49,7 @@ class MainScreen:
         # Set Label
         self.label_text = tk.StringVar()
         self.lb = tk.Label(textvariable=self.label_text, font=self.myFont)
-        self.lb.place(x=150, y=100)
+        self.lb.place(x=140, y=100)
 
         # Set Radiobutton
         self.r = tk.IntVar()
@@ -92,8 +97,6 @@ class MainScreen:
 
         # Set class names and load CNN model.
         print("Start CNN model loading.")
-        self.class_names = ['cans', 'colorless_pet', 'glass', 'nothing', 'paper', 'plastic']
-        self.model_h5 = 'models/MobileNetV3(large).h5'  # Set name of CNN model file.
         self.model = None
         try:
             self.model = tf.keras.models.load_model(self.model_h5)  # Load CNN model.
@@ -147,7 +150,7 @@ class MainScreen:
                 predictions = self.model.predict(img_array)
                 score = tf.nn.softmax(predictions[0])
                 prediction = np.argmax(score)
-                self.label_text.set(f"{self.class_names[prediction]} {100 * np.max(score):.2f}%")
+                self.label_text.set(f"{self.classes[prediction]} {100 * np.max(score):.2f}%")
 
                 if prediction == 2:  # Skip for nothing class.
                     continue
@@ -156,7 +159,7 @@ class MainScreen:
                 img.save(f"garbage_images/{int(time.time())}_{self.class_names[prediction]}.jpg")
 
                 # Operate the motor.
-                if prediction > 3:  # Except for the nothing class, the order number is determined.
+                if prediction > self.nothing_index:  # Except for the nothing class, the order number is determined.
                     prediction -= 1
                 self.current_angle = move_motor(self.current_angle, prediction, self.motor_pins1, self.motor_pins2)
             elif self.manual_state > -1:
@@ -183,23 +186,23 @@ class MainScreen:
             self.plasticButton['state'] = tk.NORMAL
 
     def cansClick(self):
-        self.label_text.set('Cans')
+        self.label_text.set(self.classes[0])
         self.manual_state = 0
 
     def colorlessPETClick(self):
-        self.label_text.set('Colorless PET')
+        self.label_text.set(self.classes[1])
         self.manual_state = 1
 
     def glassClick(self):
-        self.label_text.set('Glass')
+        self.label_text.set(self.classes[2])
         self.manual_state = 2
 
     def paperClick(self):
-        self.label_text.set('Paper')
+        self.label_text.set(self.classes[3])
         self.manual_state = 3
 
     def plasticClick(self):
-        self.label_text.set('Plastic')
+        self.label_text.set(self.classes[4])
         self.manual_state = 4
 
 

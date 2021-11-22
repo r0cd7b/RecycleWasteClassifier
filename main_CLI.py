@@ -8,6 +8,10 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 
+model_h5 = 'models/MobileNetV3(large).h5'  # 불러올 모델 파일의 이름을 정한다.
+class_names = ['cans', 'colorless_pet', 'glass', 'nothing', 'paper', 'plastic']
+index_nothing = 3
+
 # motor pin set up
 motor_pins1 = [12, 16, 20, 21]  # IN1(OUT1), IN2(OUT2), IN3(OUT3), IN4(OUT4)
 motor_pins2 = [6, 13, 19, 26]  # IN1(OUT1), IN2(OUT2), IN3(OUT3), IN4(OUT4)
@@ -32,8 +36,6 @@ print("Pi Camera setting is completed.")
 
 # Set class names and load cnn model
 print("Start CNN model loading.")
-class_names = ['cans', 'colorless_pet', 'glass', 'nothing', 'paper', 'plastic']
-model_h5 = 'models/MobileNetV3(large).h5'  # 불러올 모델 파일의 이름을 정한다.
 model = None
 try:
     model = tf.keras.models.load_model(model_h5)  # 모델을 불러온다.
@@ -62,14 +64,14 @@ while model:
     prediction = np.argmax(score)
     print(f"{class_names[prediction]} {100 * np.max(score):.2f}%")
 
-    if prediction == 2:  # Skip for nothing class.
+    if prediction == index_nothing:  # Skip for nothing class.
         continue
 
     # Save predicted image.
-    img.save(f"garbage_images/{int(time.time())}_{class_names[prediction]}.jpg")
+    # img.save(f"garbage_images/{int(time.time())}_{class_names[prediction]}.jpg")
 
     # Operate the motor.
-    if prediction > 2:  # Except for the nothing class, the order number is determined.
+    if prediction > index_nothing:  # Except for the nothing class, the order number is determined.
         prediction -= 1
     current_angle = move_motor(current_angle, prediction, motor_pins1, motor_pins2)
 

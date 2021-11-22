@@ -14,11 +14,14 @@ import tensorflow as tf
 
 class MainScreen:
     def __init__(self):
-        self.classes = ['Cans', 'Colorless PET', 'Glass', 'Nothing', 'Paper', 'Plastic']
         self.model_h5 = 'models/MobileNetV3(large).h5'  # Set name of CNN model file.
+        self.classes = ['Cans', 'Colorless PET', 'Glass', 'Nothing', 'Paper', 'Plastic']
         self.class_names = ['cans', 'colorless_pet', 'glass', 'nothing', 'paper', 'plastic']
-        self.nothing_index = 3
-        
+        self.index_nothing = 3
+
+        self.thread_flag = False
+        self.manual_state = -1
+
         self.window = tk.Tk()  # Tkinter로 화면 생성.
         self.window.attributes('-fullscreen', True)  # 전체 화면으로 설정.
         self.fullScreenState = False  # 전체 화면 상태를 컨트롤하기 위한 변수.
@@ -27,14 +30,12 @@ class MainScreen:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)  # Execute on_closing fuction before exit.
 
         self.myFont = font.Font(family='Helvetica', size=18, weight='bold')
-        self.thread_flag = False
-        self.manual_state = -1
 
         # Set Button
         self.cansButton = tk.Button(self.window, text=self.classes[0], font=self.myFont, command=self.cansClick)
         self.colorlessPETButton = tk.Button(self.window, text=self.classes[1], font=self.myFont,
                                             command=self.colorlessPETClick)
-        self.glassButton = tk.Button(self.window, text=self.classes[3], font=self.myFont, command=self.glassClick)
+        self.glassButton = tk.Button(self.window, text=self.classes[2], font=self.myFont, command=self.glassClick)
         self.paperButton = tk.Button(self.window, text=self.classes[4], font=self.myFont, command=self.paperClick)
         self.plasticButton = tk.Button(self.window, text=self.classes[5], font=self.myFont, command=self.plasticClick)
         self.exitButton = tk.Button(self.window, text="x", font=self.myFont, command=self.on_closing)
@@ -152,16 +153,17 @@ class MainScreen:
                 prediction = np.argmax(score)
                 self.label_text.set(f"{self.classes[prediction]} {100 * np.max(score):.2f}%")
 
-                if prediction == 2:  # Skip for nothing class.
+                if prediction == self.index_nothing:  # Skip for nothing class.
                     continue
 
                 # Save predicted image.
-                img.save(f"garbage_images/{int(time.time())}_{self.class_names[prediction]}.jpg")
+                # img.save(f"garbage_images/{int(time.time())}_{self.class_names[prediction]}.jpg")
 
                 # Operate the motor.
-                if prediction > self.nothing_index:  # Except for the nothing class, the order number is determined.
+                if prediction > self.index_nothing:  # Except for the nothing class, the order number is determined.
                     prediction -= 1
                 self.current_angle = move_motor(self.current_angle, prediction, self.motor_pins1, self.motor_pins2)
+
             elif self.manual_state > -1:
                 self.current_angle = move_motor(self.current_angle, self.manual_state, self.motor_pins1,
                                                 self.motor_pins2)
@@ -169,16 +171,16 @@ class MainScreen:
 
     def selectRadio(self):  # 라디오 버튼 이벤트
         if self.r.get() == 1:
-            self.label_text.set("Auto")
             self.thread_flag = True
+            self.label_text.set("Auto")
             self.cansButton['state'] = tk.DISABLED
             self.glassButton['state'] = tk.DISABLED
             self.paperButton['state'] = tk.DISABLED
             self.colorlessPETButton['state'] = tk.DISABLED
             self.plasticButton['state'] = tk.DISABLED
-        elif self.r.get() == 2:
-            self.label_text.set("Manual")
+        else:
             self.thread_flag = False
+            self.label_text.set("Manual")
             self.cansButton['state'] = tk.NORMAL
             self.glassButton['state'] = tk.NORMAL
             self.paperButton['state'] = tk.NORMAL
@@ -186,24 +188,24 @@ class MainScreen:
             self.plasticButton['state'] = tk.NORMAL
 
     def cansClick(self):
-        self.label_text.set(self.classes[0])
         self.manual_state = 0
+        self.label_text.set(self.classes[0])
 
     def colorlessPETClick(self):
-        self.label_text.set(self.classes[1])
         self.manual_state = 1
+        self.label_text.set(self.classes[1])
 
     def glassClick(self):
-        self.label_text.set(self.classes[2])
         self.manual_state = 2
+        self.label_text.set(self.classes[2])
 
     def paperClick(self):
-        self.label_text.set(self.classes[3])
-        self.manual_state = 3
+        self.manual_state = 4
+        self.label_text.set(self.classes[4])
 
     def plasticClick(self):
-        self.label_text.set(self.classes[4])
-        self.manual_state = 4
+        self.manual_state = 5
+        self.label_text.set(self.classes[5])
 
 
 if __name__ == "__main__":

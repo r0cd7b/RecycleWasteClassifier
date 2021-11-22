@@ -18,7 +18,9 @@ train_dataset = image_dataset_from_directory(data_dir, validation_split=0.2, sub
                                              image_size=IMG_SIZE, batch_size=BATCH_SIZE)
 validation_dataset = image_dataset_from_directory(data_dir, validation_split=0.2, subset="validation", seed=seed,
                                                   image_size=IMG_SIZE, batch_size=BATCH_SIZE)
-class_names = train_dataset.class_names
+
+class_names = train_dataset.class_names  # 각 클래스 이름을 출력한다.
+print(f"Class names: {class_names}")
 
 # 훈련용 데이터셋에서 처음 9 개의 이미지 및 레이블을 보여준다.
 plt.figure(figsize=(9, 9))

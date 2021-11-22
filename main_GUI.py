@@ -26,24 +26,25 @@ class MainScreen:
         self.manual_state = -1
 
         # Set Button
-        self.canButton = tk.Button(self.window, text="Can", font=self.myFont, command=self.canClick)
+        self.cansButton = tk.Button(self.window, text="Cans", font=self.myFont, command=self.cansClick)
+        self.colorlessPETButton = tk.Button(self.window, text="Colorless PET", font=self.myFont,
+                                            command=self.colorlessPETClick)
         self.glassButton = tk.Button(self.window, text="Glass", font=self.myFont, command=self.glassClick)
         self.paperButton = tk.Button(self.window, text="Paper", font=self.myFont, command=self.paperClick)
-        self.petButton = tk.Button(self.window, text="Pet", font=self.myFont, command=self.petClick)
         self.plasticButton = tk.Button(self.window, text="Plastic", font=self.myFont, command=self.plasticClick)
         self.exitButton = tk.Button(self.window, text="x", font=self.myFont, command=self.on_closing)
 
-        self.canButton.place(x=440, y=120, width=140, height=80)
+        self.cansButton.place(x=440, y=120, width=140, height=80)
         self.glassButton.place(x=600, y=120, width=140, height=80)
         self.paperButton.place(x=440, y=220, width=140, height=80)
-        self.petButton.place(x=600, y=220, width=140, height=80)
+        self.colorlessPETButton.place(x=600, y=220, width=140, height=80)
         self.plasticButton.place(x=440, y=320, width=140, height=80)
         self.exitButton.place(x=760, y=10, width=30, height=30)
 
         # Set Label
         self.label_text = tk.StringVar()
         self.lb = tk.Label(textvariable=self.label_text, font=self.myFont)
-        self.lb.place(x=160, y=100)
+        self.lb.place(x=150, y=100)
 
         # Set Radiobutton
         self.r = tk.IntVar()
@@ -91,7 +92,7 @@ class MainScreen:
 
         # Set class names and load CNN model.
         print("Start CNN model loading.")
-        self.class_names = ['can', 'glass', 'nothing', 'paper', 'pet', 'plastic']
+        self.class_names = ['cans', 'colorless_pet', 'glass', 'nothing', 'paper', 'plastic']
         self.model_h5 = 'models/MobileNetV3(large).h5'  # Set name of CNN model file.
         self.model = None
         try:
@@ -109,10 +110,6 @@ class MainScreen:
         self.t1 = threading.Thread(target=self.predict_thread, args=())
         self.t1.daemon = True
         self.t1.start()
-        
-        self.t2 = threading.Thread(target=self.predict_thread, args=())
-        self.t2.daemon = True
-        self.t2.start()
 
         self.window.mainloop()  # Exit GUI
 
@@ -159,45 +156,46 @@ class MainScreen:
                 img.save(f"garbage_images/{int(time.time())}_{self.class_names[prediction]}.jpg")
 
                 # Operate the motor.
-                if prediction > 2:  # Except for the nothing class, the order number is determined.
+                if prediction > 3:  # Except for the nothing class, the order number is determined.
                     prediction -= 1
                 self.current_angle = move_motor(self.current_angle, prediction, self.motor_pins1, self.motor_pins2)
             elif self.manual_state > -1:
-                self.current_angle = move_motor(self.current_angle, self.manual_state, self.motor_pins1, self.motor_pins2)
+                self.current_angle = move_motor(self.current_angle, self.manual_state, self.motor_pins1,
+                                                self.motor_pins2)
                 self.manual_state = -1
 
     def selectRadio(self):  # 라디오 버튼 이벤트
         if self.r.get() == 1:
             self.label_text.set("Auto")
             self.thread_flag = True
-            self.canButton['state'] = tk.DISABLED
+            self.cansButton['state'] = tk.DISABLED
             self.glassButton['state'] = tk.DISABLED
             self.paperButton['state'] = tk.DISABLED
-            self.petButton['state'] = tk.DISABLED
+            self.colorlessPETButton['state'] = tk.DISABLED
             self.plasticButton['state'] = tk.DISABLED
         elif self.r.get() == 2:
             self.label_text.set("Manual")
             self.thread_flag = False
-            self.canButton['state'] = tk.NORMAL
+            self.cansButton['state'] = tk.NORMAL
             self.glassButton['state'] = tk.NORMAL
             self.paperButton['state'] = tk.NORMAL
-            self.petButton['state'] = tk.NORMAL
+            self.colorlessPETButton['state'] = tk.NORMAL
             self.plasticButton['state'] = tk.NORMAL
 
-    def canClick(self):
-        self.label_text.set('Can')
+    def cansClick(self):
+        self.label_text.set('Cans')
         self.manual_state = 0
+
+    def colorlessPETClick(self):
+        self.label_text.set('Colorless PET')
+        self.manual_state = 1
 
     def glassClick(self):
         self.label_text.set('Glass')
-        self.manual_state = 1
+        self.manual_state = 2
 
     def paperClick(self):
         self.label_text.set('Paper')
-        self.manual_state = 2
-
-    def petClick(self):
-        self.label_text.set('Pet')
         self.manual_state = 3
 
     def plasticClick(self):

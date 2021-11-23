@@ -40,17 +40,17 @@ class MainScreen:
         self.plasticButton = tk.Button(self.window, text=self.classes[5], font=self.myFont, command=self.plasticClick)
         self.exitButton = tk.Button(self.window, text="x", font=self.myFont, command=self.on_closing)
 
-        self.cansButton.place(x=440, y=120, width=140, height=80)
-        self.glassButton.place(x=600, y=120, width=140, height=80)
-        self.paperButton.place(x=440, y=220, width=140, height=80)
-        self.colorlessPETButton.place(x=600, y=220, width=140, height=80)
-        self.plasticButton.place(x=440, y=320, width=140, height=80)
+        self.cansButton.place(x=400, y=160, width=170, height=80)
+        self.glassButton.place(x=580, y=160, width=170, height=80)
+        self.paperButton.place(x=400, y=250, width=170, height=80)
+        self.colorlessPETButton.place(x=580, y=250, width=170, height=80)
+        self.plasticButton.place(x=400, y=340, width=170, height=80)
         self.exitButton.place(x=760, y=10, width=30, height=30)
 
         # Set Label
         self.label_text = tk.StringVar()
         self.lb = tk.Label(textvariable=self.label_text, font=self.myFont)
-        self.lb.place(x=140, y=100)
+        self.lb.place(x=80, y=100)
 
         # Set Radiobutton
         self.r = tk.IntVar()
@@ -172,7 +172,8 @@ class MainScreen:
     def selectRadio(self):  # 라디오 버튼 이벤트
         if self.r.get() == 1:
             self.thread_flag = True
-            self.label_text.set("Auto")
+#             self.label_text.set("Auto")
+            self.label_text.set("Colorless PET 100.00%")
             self.cansButton['state'] = tk.DISABLED
             self.glassButton['state'] = tk.DISABLED
             self.paperButton['state'] = tk.DISABLED

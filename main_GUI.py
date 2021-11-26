@@ -172,8 +172,7 @@ class MainScreen:
     def selectRadio(self):  # 라디오 버튼 이벤트
         if self.r.get() == 1:
             self.thread_flag = True
-#             self.label_text.set("Auto")
-            self.label_text.set("Colorless PET 100.00%")
+            self.label_text.set("Auto")
             self.cansButton['state'] = tk.DISABLED
             self.glassButton['state'] = tk.DISABLED
             self.paperButton['state'] = tk.DISABLED
